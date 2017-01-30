@@ -229,8 +229,8 @@ var appServer = function(config) {
 			self.log("httpsEnabled is true. Reading HTTPS config");
 
 			if(config.privateKey != undefined && config.certificate != undefined && config.httpsPort != undefined) { //Ensure that all of the needed properties are set
-				var privateKeyFile = 'sslcert/' + config.privateKey;
-				var certificateFile = 'sslcert/' + config.certificate;
+				var privateKeyFile = path.join(__dirname+'/sslcert/' + config.privateKey);
+				var certificateFile = path.join(__dirname+'/sslcert/' + config.certificate);
 
 				if(fs.existsSync(privateKeyFile) && fs.existsSync(certificateFile)) { //Make sure the key and cert exist.
 
