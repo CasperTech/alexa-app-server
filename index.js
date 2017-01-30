@@ -234,7 +234,10 @@ var appServer = function(config) {
 
 				if(fs.existsSync(privateKeyFile) && fs.existsSync(certificateFile)) { //Make sure the key and cert exist.
 
-					var privateKey  = fs.readFileSync(privateKeyFile, 'utf8');
+					console.log("Reading private key from "+privateKeyFile);
+                    console.log("Reading certificate from "+certificateFile);
+
+                    var privateKey  = fs.readFileSync(privateKeyFile, 'utf8');
 					var certificate = fs.readFileSync(certificateFile  , 'utf8');
 
 						if(privateKey != undefined && certificate != undefined) {
