@@ -250,7 +250,7 @@ var appServer = function(config) {
 
 							try { //The line below can fail it the certs were generated incorrectly. But we can continue startup without HTTPS
 
-								spdy.createServer(credentials, self.express).listen(config.httpsPort); //create the HTTPS server
+								spdy.createServer(options, self.express).listen(config.httpsPort); //create the HTTPS server
 								self.log("Listening on HTTPS port " + config.httpsPort);
 							} catch(error) {
 								self.log("Failed to listen via HTTPS Error: " + error);
