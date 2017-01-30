@@ -232,10 +232,10 @@ var appServer = function(config) {
 				var privateKeyFile = path.join(__dirname+'/sslcert/' + config.privateKey);
 				var certificateFile = path.join(__dirname+'/sslcert/' + config.certificate);
 
-				if(fs.existsSync(privateKeyFile) && fs.existsSync(certificateFile)) { //Make sure the key and cert exist.
+                console.log("Reading private key from "+privateKeyFile);
+                console.log("Reading certificate from "+certificateFile);
 
-					console.log("Reading private key from "+privateKeyFile);
-                    console.log("Reading certificate from "+certificateFile);
+				if(fs.existsSync(privateKeyFile) && fs.existsSync(certificateFile)) { //Make sure the key and cert exist.
 
                     var privateKey  = fs.readFileSync(privateKeyFile, 'utf8');
 					var certificate = fs.readFileSync(certificateFile  , 'utf8');
