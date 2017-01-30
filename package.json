@@ -11,7 +11,8 @@
     "body-parser": "~1.0.1",
     "ejs": "~0.7.1",
     "express": "~4.0.0",
-    "hotswap": "^1.1.0"
+    "hotswap": "^1.1.0",
+    "spdy": "^3.4.4"
   },
   "devDependencies": {
     "supervisor": "^0.6.0"

@@ -8,6 +8,7 @@ var alexa = require('alexa-app');
 var verifier = require('alexa-verifier');
 var bodyParser = require('body-parser');
 var Promise = require('bluebird');
+var spdy = require('spdy')
 
 var appServer = function(config) {
 	var self = {};
@@ -236,14 +237,23 @@ var appServer = function(config) {
 					var certificate = fs.readFileSync(certificateFile  , 'utf8');
 
 						if(privateKey != undefined && certificate != undefined) {
-							var credentials = {key: privateKey, cert: certificate};
+							var options = {
+								key: privateKey,
+								cert: certificate,
+                                protocols: ['h2', 'spdy/3.1', 'spdy/3.0', 'http/1.1'],
+								plain: false,
+                                connection: {
+                                    windowSize: 1024 * 1024 // Server's window size
+                                }
+							};
 
-									try { //The line below can fail it the certs were generated incorrectly. But we can continue startup without HTTPS
-									https.createServer(credentials, self.express).listen(config.httpsPort); //create the HTTPS server
-									self.log("Listening on HTTPS port " + config.httpsPort);
-								}catch(error) {
-									self.log("Failed to listen via HTTPS Error: " + error);
-								}
+							try { //The line below can fail it the certs were generated incorrectly. But we can continue startup without HTTPS
+
+								spdy.createServer(credentials, self.express).listen(config.httpsPort); //create the HTTPS server
+								self.log("Listening on HTTPS port " + config.httpsPort);
+							} catch(error) {
+								self.log("Failed to listen via HTTPS Error: " + error);
+							}
 						} else {
 						self.log("Failed to load privateKey or certificate from /sslcert. HTTPS will not be enabled");
 
