@@ -224,7 +224,8 @@ var appServer = function(config) {
 			self.log("Apps not loaded because directory ["+app_dir+"] does not exist");
 		}
 
-		if(config.httpsEnabled == true) {
+		if(config.httpsEnabled == true)
+		{
 			self.log("httpsEnabled is true. Reading HTTPS config");
 
 			if(config.privateKey != undefined && config.certificate != undefined && config.httpsPort != undefined) { //Ensure that all of the needed properties are set
