@@ -8,6 +8,7 @@ var alexa = require('alexa-app');
 var verifier = require('alexa-verifier');
 var bodyParser = require('body-parser');
 var Promise = require('bluebird');
+var spdy = require('spdy')
 
 var appServer = function(config) {
 	var self = {};
@@ -164,7 +165,7 @@ var appServer = function(config) {
 	self.start = function() {
 		// Instantiate up the server
 		self.express = express();
-		self.express.use(bodyParser.urlencoded({ extended: true }));
+		self.express.use("/alexa", bodyParser.urlencoded({ extended: true }));
 
 		//We need the rawBody for request verification
 		self.express.use(function(req, res, next)
@@ -223,27 +224,40 @@ var appServer = function(config) {
 			self.log("Apps not loaded because directory ["+app_dir+"] does not exist");
 		}
 
-		if(config.httpsEnabled == true) {
+		if(config.httpsEnabled == true)
+		{
 			self.log("httpsEnabled is true. Reading HTTPS config");
 
 			if(config.privateKey != undefined && config.certificate != undefined && config.httpsPort != undefined) { //Ensure that all of the needed properties are set
-				var privateKeyFile = 'sslcert/' + config.privateKey;
-				var certificateFile = 'sslcert/' + config.certificate;
+				var privateKeyFile = path.join(__dirname+'/sslcert/' + config.privateKey);
+				var certificateFile = path.join(__dirname+'/sslcert/' + config.certificate);
+
+                console.log("Reading private key from "+privateKeyFile);
+                console.log("Reading certificate from "+certificateFile);
 
 				if(fs.existsSync(privateKeyFile) && fs.existsSync(certificateFile)) { //Make sure the key and cert exist.
 
-					var privateKey  = fs.readFileSync(privateKeyFile, 'utf8');
+                    var privateKey  = fs.readFileSync(privateKeyFile, 'utf8');
 					var certificate = fs.readFileSync(certificateFile  , 'utf8');
 
 						if(privateKey != undefined && certificate != undefined) {
-							var credentials = {key: privateKey, cert: certificate};
+							var options = {
+								key: privateKey,
+								cert: certificate,
+                                protocols: ['h2', 'spdy/3.1', 'spdy/3.0', 'http/1.1'],
+								plain: false,
+                                connection: {
+                                    windowSize: 1024 * 1024 // Server's window size
+                                }
+							};
 
-									try { //The line below can fail it the certs were generated incorrectly. But we can continue startup without HTTPS
-									https.createServer(credentials, self.express).listen(config.httpsPort); //create the HTTPS server
-									self.log("Listening on HTTPS port " + config.httpsPort);
-								}catch(error) {
-									self.log("Failed to listen via HTTPS Error: " + error);
-								}
+							try { //The line below can fail it the certs were generated incorrectly. But we can continue startup without HTTPS
+
+								spdy.createServer(options, self.express).listen(config.httpsPort); //create the HTTPS server
+								self.log("Listening on HTTPS port " + config.httpsPort);
+							} catch(error) {
+								self.log("Failed to listen via HTTPS Error: " + error);
+							}
 						} else {
 						self.log("Failed to load privateKey or certificate from /sslcert. HTTPS will not be enabled");
 
